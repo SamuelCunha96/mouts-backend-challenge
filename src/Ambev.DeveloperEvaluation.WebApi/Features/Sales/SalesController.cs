@@ -61,6 +61,8 @@ public class SalesController : BaseController
         [FromQuery] string? status = null,
         [FromQuery] DateTime? minDate = null,
         [FromQuery] DateTime? maxDate = null,
+        [FromQuery] string? customerName = null,
+        [FromQuery] string? branchName = null,
         CancellationToken cancellationToken = default)
     {
         var query = new ListSalesQuery
@@ -72,7 +74,9 @@ public class SalesController : BaseController
             BranchId = branchId,
             Status = status,
             MinDate = minDate,
-            MaxDate = maxDate
+            MaxDate = maxDate,
+            CustomerName = customerName,
+            BranchName = branchName
         };
 
         var result = await _mediator.Send(query, cancellationToken);

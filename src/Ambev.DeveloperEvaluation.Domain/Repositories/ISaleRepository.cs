@@ -18,5 +18,7 @@ public interface ISaleRepository
         string? status = null,
         DateTime? minDate = null,
         DateTime? maxDate = null,
+        string? customerName = null,
+        string? branchName = null,
         CancellationToken cancellationToken = default);
 }

@@ -1,0 +1,665 @@
+{
+  "info": {
+    "_postman_id": "ambev-sales-api-collection",
+    "name": "Sales API — Mouts Backend Challenge",
+    "description": "Full coverage collection for the Sales API. Run 'Create Sale (saves IDs)' first — it populates {{sale_id}} and {{product_id}} used by all other requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "https://localhost:8081", "type": "string" },
+    { "key": "sale_id",   "value": "", "type": "string" },
+    { "key": "product_id","value": "", "type": "string" },
+    { "key": "sale_number","value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1. Create Sale",
+      "item": [
+        {
+          "name": "✅ Valid — 1 item, no discount",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('sale_number', 'SALE-' + Date.now());",
+                  "pm.collectionVariables.set('product_id', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('Success true', () => pm.expect(body.success).to.be.true);",
+                  "pm.test('Has sale ID', () => pm.expect(body.data.id).to.be.a('string'));",
+                  "pm.test('Discount is 0', () => pm.expect(body.data.items[0].discount).to.eql(0));",
+                  "pm.collectionVariables.set('sale_id', body.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/sales",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"saleNumber\": \"{{sale_number}}\",\n  \"saleDate\": \"2025-06-25T10:00:00Z\",\n  \"customerId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"customerName\": \"Ambev Distribuidora\",\n  \"branchId\": \"4fa85f64-5717-4562-b3fc-2c963f66afa7\",\n  \"branchName\": \"São Paulo\",\n  \"items\": [\n    {\n      \"productId\": \"{{product_id}}\",\n      \"productName\": \"Brahma 600ml\",\n      \"unitPrice\": 5.50,\n      \"quantity\": 3\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "✅ Valid — 4 items, 10% discount",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('sale_number', 'SALE4-' + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('Discount is 10%', () => pm.expect(body.data.items[0].discount).to.eql(0.1));",
+                  "pm.test('TotalAmount = 4 * 5.50 * 0.90 = 19.80', () => pm.expect(body.data.items[0].totalAmount).to.eql(19.8));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/sales",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"saleNumber\": \"{{sale_number}}\",\n  \"saleDate\": \"2025-06-25T10:00:00Z\",\n  \"customerId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"customerName\": \"Ambev Distribuidora\",\n  \"branchId\": \"4fa85f64-5717-4562-b3fc-2c963f66afa7\",\n  \"branchName\": \"São Paulo\",\n  \"items\": [\n    {\n      \"productId\": \"5fa85f64-5717-4562-b3fc-2c963f66afa8\",\n      \"productName\": \"Brahma 600ml\",\n      \"unitPrice\": 5.50,\n      \"quantity\": 4\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "✅ Valid — 10 items, 20% discount",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('sale_number', 'SALE10-' + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('Discount is 20%', () => pm.expect(body.data.items[0].discount).to.eql(0.2));",
+                  "pm.test('TotalAmount = 10 * 5.50 * 0.80 = 44.00', () => pm.expect(body.data.items[0].totalAmount).to.eql(44.0));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/sales",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"saleNumber\": \"{{sale_number}}\",\n  \"saleDate\": \"2025-06-25T10:00:00Z\",\n  \"customerId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"customerName\": \"Ambev Distribuidora\",\n  \"branchId\": \"4fa85f64-5717-4562-b3fc-2c963f66afa7\",\n  \"branchName\": \"São Paulo\",\n  \"items\": [\n    {\n      \"productId\": \"5fa85f64-5717-4562-b3fc-2c963f66afa8\",\n      \"productName\": \"Brahma 600ml\",\n      \"unitPrice\": 5.50,\n      \"quantity\": 10\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "❌ Over 20 items — DomainException",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('sale_number', 'SALE21-' + Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/sales",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"saleNumber\": \"{{sale_number}}\",\n  \"saleDate\": \"2025-06-25T10:00:00Z\",\n  \"customerId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"customerName\": \"Ambev Distribuidora\",\n  \"branchId\": \"4fa85f64-5717-4562-b3fc-2c963f66afa7\",\n  \"branchName\": \"São Paulo\",\n  \"items\": [\n    {\n      \"productId\": \"5fa85f64-5717-4562-b3fc-2c963f66afa8\",\n      \"productName\": \"Brahma 600ml\",\n      \"unitPrice\": 5.50,\n      \"quantity\": 21\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "❌ Duplicate sale number",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));",
+                  "const body = pm.response.json();",
+                  "pm.test('Error message contains sale number', () => pm.expect(body.message).to.include(pm.collectionVariables.get('sale_number')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/sales",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"saleNumber\": \"{{sale_number}}\",\n  \"saleDate\": \"2025-06-25T10:00:00Z\",\n  \"customerId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"customerName\": \"Ambev Distribuidora\",\n  \"branchId\": \"4fa85f64-5717-4562-b3fc-2c963f66afa7\",\n  \"branchName\": \"São Paulo\",\n  \"items\": [\n    {\n      \"productId\": \"5fa85f64-5717-4562-b3fc-2c963f66afa8\",\n      \"productName\": \"Brahma 600ml\",\n      \"unitPrice\": 5.50,\n      \"quantity\": 1\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "❌ Missing required fields — validation error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));",
+                  "const body = pm.response.json();",
+                  "pm.test('Has errors array', () => pm.expect(body.errors).to.be.an('array').and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/sales",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Get Sale",
+      "item": [
+        {
+          "name": "✅ Get by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('ID matches', () => pm.expect(body.data.id).to.eql(pm.collectionVariables.get('sale_id')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/sales/{{sale_id}}"
+          }
+        },
+        {
+          "name": "❌ Non-existing ID — 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/sales/00000000-0000-0000-0000-000000000000"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. List Sales",
+      "item": [
+        {
+          "name": "✅ Default pagination",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Has data array', () => pm.expect(body.data.data).to.be.an('array'));",
+                  "pm.test('Has totalItems', () => pm.expect(body.data.totalItems).to.be.a('number'));",
+                  "pm.test('Has currentPage = 1', () => pm.expect(body.data.currentPage).to.eql(1));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/sales?_page=1&_size=10",
+              "query": [
+                { "key": "_page", "value": "1" },
+                { "key": "_size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "✅ Filter by status=Active",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('All items are Active', () => body.data.data.forEach(s => pm.expect(s.status).to.eql(1)));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/sales?status=Active",
+              "query": [{ "key": "status", "value": "Active" }]
+            }
+          }
+        },
+        {
+          "name": "✅ Wildcard customerName=Ambev*",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/sales?customerName=Ambev*",
+              "query": [{ "key": "customerName", "value": "Ambev*" }]
+            }
+          }
+        },
+        {
+          "name": "✅ Wildcard customerName=*Distribuidora",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/sales?customerName=*Distribuidora",
+              "query": [{ "key": "customerName", "value": "*Distribuidora" }]
+            }
+          }
+        },
+        {
+          "name": "✅ Wildcard customerName=*Ambev*",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/sales?customerName=*Ambev*",
+              "query": [{ "key": "customerName", "value": "*Ambev*" }]
+            }
+          }
+        },
+        {
+          "name": "✅ Wildcard branchName=São*",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/sales?branchName=São*",
+              "query": [{ "key": "branchName", "value": "São*" }]
+            }
+          }
+        },
+        {
+          "name": "✅ Date range filter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/sales?minDate=2025-01-01&maxDate=2025-12-31",
+              "query": [
+                { "key": "minDate", "value": "2025-01-01" },
+                { "key": "maxDate", "value": "2025-12-31" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "✅ Order by customerName asc",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/sales?_order=customerName asc",
+              "query": [{ "key": "_order", "value": "customerName asc" }]
+            }
+          }
+        },
+        {
+          "name": "✅ Order by saleDate desc, customerName asc",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/sales?_order=saleDate desc, customerName asc",
+              "query": [{ "key": "_order", "value": "saleDate desc, customerName asc" }]
+            }
+          }
+        },
+        {
+          "name": "✅ Filter by customerId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/sales?customerId=3fa85f64-5717-4562-b3fc-2c963f66afa6",
+              "query": [{ "key": "customerId", "value": "3fa85f64-5717-4562-b3fc-2c963f66afa6" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Update Sale",
+      "item": [
+        {
+          "name": "✅ Valid update",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('CustomerName updated', () => pm.expect(body.data.customerName).to.eql('Ambev Distribuidora SP'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/sales/{{sale_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"saleDate\": \"2025-06-26T10:00:00Z\",\n  \"customerName\": \"Ambev Distribuidora SP\",\n  \"branchName\": \"São Paulo Centro\",\n  \"items\": [\n    {\n      \"productId\": \"6fa85f64-5717-4562-b3fc-2c963f66afa9\",\n      \"productName\": \"Skol 350ml\",\n      \"unitPrice\": 3.00,\n      \"quantity\": 5\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "❌ Non-existing ID — 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/sales/00000000-0000-0000-0000-000000000000",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"saleDate\": \"2025-06-26T10:00:00Z\",\n  \"customerName\": \"Test\",\n  \"branchName\": \"Test Branch\",\n  \"items\": [\n    {\n      \"productId\": \"6fa85f64-5717-4562-b3fc-2c963f66afa9\",\n      \"productName\": \"Skol 350ml\",\n      \"unitPrice\": 3.00,\n      \"quantity\": 1\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "❌ Missing required fields — validation error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/sales/{{sale_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Cancel Sale Item",
+      "item": [
+        {
+          "name": "✅ Cancel item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Success true', () => pm.expect(body.success).to.be.true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/sales/{{sale_id}}/items/{{product_id}}/cancel"
+          }
+        },
+        {
+          "name": "❌ Already cancelled item — 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/sales/{{sale_id}}/items/{{product_id}}/cancel"
+          }
+        },
+        {
+          "name": "❌ Non-existing product ID — 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/sales/{{sale_id}}/items/00000000-0000-0000-0000-000000000000/cancel"
+          }
+        },
+        {
+          "name": "❌ Non-existing sale ID — 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/sales/00000000-0000-0000-0000-000000000000/items/{{product_id}}/cancel"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Cancel Sale",
+      "item": [
+        {
+          "name": "✅ Cancel sale",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Success true', () => pm.expect(body.success).to.be.true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/sales/{{sale_id}}"
+          }
+        },
+        {
+          "name": "❌ Already cancelled sale — 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/sales/{{sale_id}}"
+          }
+        },
+        {
+          "name": "❌ Non-existing ID — 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/sales/00000000-0000-0000-0000-000000000000"
+          }
+        }
+      ]
+    }
+  ]
+}

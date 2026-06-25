@@ -31,7 +31,7 @@ public class ListSalesHandlerTests
             .Select(_ => SaleHandlerTestData.GenerateSaleFromCommand(SaleHandlerTestData.GenerateValidCreateCommand()))
             .ToList();
 
-        _saleRepository.GetAllAsync(1, 10, null, null, null, null, null, null, Arg.Any<CancellationToken>())
+        _saleRepository.GetAllAsync(1, 10, null, null, null, null, null, null, null, null, Arg.Any<CancellationToken>())
             .Returns((sales.AsEnumerable(), sales.Count));
 
         _mapper.Map<IEnumerable<SaleResult>>(Arg.Any<IEnumerable<DomainSale>>())
@@ -62,6 +62,7 @@ public class ListSalesHandlerTests
         _saleRepository.GetAllAsync(
             Arg.Any<int>(), Arg.Any<int>(), Arg.Any<string?>(),
             customerId, branchId, "Active", minDate, maxDate,
+            Arg.Any<string?>(), Arg.Any<string?>(),
             Arg.Any<CancellationToken>())
             .Returns((Enumerable.Empty<DomainSale>(), 0));
 
@@ -85,6 +86,36 @@ public class ListSalesHandlerTests
         await _saleRepository.Received(1).GetAllAsync(
             1, 10, null,
             customerId, branchId, "Active", minDate, maxDate,
+            null, null,
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact(DisplayName = "Given query with customerName wildcard When listing sales Then passes pattern to repository")]
+    public async Task Handle_CustomerNameWildcard_PassesFilterToRepository()
+    {
+        // Given
+        _saleRepository.GetAllAsync(
+            Arg.Any<int>(), Arg.Any<int>(), Arg.Any<string?>(),
+            Arg.Any<Guid?>(), Arg.Any<Guid?>(), Arg.Any<string?>(),
+            Arg.Any<DateTime?>(), Arg.Any<DateTime?>(),
+            "Ambev*", Arg.Any<string?>(),
+            Arg.Any<CancellationToken>())
+            .Returns((Enumerable.Empty<DomainSale>(), 0));
+
+        _mapper.Map<IEnumerable<SaleResult>>(Arg.Any<IEnumerable<DomainSale>>())
+            .Returns(Enumerable.Empty<SaleResult>());
+
+        var query = new ListSalesQuery { CustomerName = "Ambev*" };
+
+        // When
+        await _handler.Handle(query, CancellationToken.None);
+
+        // Then
+        await _saleRepository.Received(1).GetAllAsync(
+            Arg.Any<int>(), Arg.Any<int>(), Arg.Any<string?>(),
+            Arg.Any<Guid?>(), Arg.Any<Guid?>(), Arg.Any<string?>(),
+            Arg.Any<DateTime?>(), Arg.Any<DateTime?>(),
+            "Ambev*", Arg.Any<string?>(),
             Arg.Any<CancellationToken>());
     }
 
@@ -96,6 +127,7 @@ public class ListSalesHandlerTests
             Arg.Any<int>(), Arg.Any<int>(), Arg.Any<string?>(),
             Arg.Any<Guid?>(), Arg.Any<Guid?>(), Arg.Any<string?>(),
             Arg.Any<DateTime?>(), Arg.Any<DateTime?>(),
+            Arg.Any<string?>(), Arg.Any<string?>(),
             Arg.Any<CancellationToken>())
             .Returns((Enumerable.Empty<DomainSale>(), 0));
 
@@ -119,6 +151,7 @@ public class ListSalesHandlerTests
             Arg.Any<int>(), Arg.Any<int>(), Arg.Any<string?>(),
             Arg.Any<Guid?>(), Arg.Any<Guid?>(), Arg.Any<string?>(),
             Arg.Any<DateTime?>(), Arg.Any<DateTime?>(),
+            Arg.Any<string?>(), Arg.Any<string?>(),
             Arg.Any<CancellationToken>())
             .Returns((Enumerable.Empty<DomainSale>(), 25));
 

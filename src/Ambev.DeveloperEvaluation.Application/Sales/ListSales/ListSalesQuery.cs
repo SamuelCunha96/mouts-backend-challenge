@@ -13,4 +13,6 @@ public class ListSalesQuery : IRequest<ListSalesResult>
     public string? Status { get; set; }
     public DateTime? MinDate { get; set; }
     public DateTime? MaxDate { get; set; }
+    public string? CustomerName { get; set; }
+    public string? BranchName { get; set; }
 }

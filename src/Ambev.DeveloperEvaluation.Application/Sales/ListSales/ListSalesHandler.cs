@@ -27,6 +27,8 @@ public class ListSalesHandler : IRequestHandler<ListSalesQuery, ListSalesResult>
             query.Status,
             query.MinDate,
             query.MaxDate,
+            query.CustomerName,
+            query.BranchName,
             cancellationToken);
 
         return new ListSalesResult

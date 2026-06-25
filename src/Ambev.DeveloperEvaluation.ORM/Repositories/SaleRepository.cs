@@ -62,6 +62,8 @@ public class SaleRepository : ISaleRepository
         string? status = null,
         DateTime? minDate = null,
         DateTime? maxDate = null,
+        string? customerName = null,
+        string? branchName = null,
         CancellationToken cancellationToken = default)
     {
         var query = _context.Sales.Include(s => s.Items).AsQueryable();
@@ -81,6 +83,18 @@ public class SaleRepository : ISaleRepository
         if (maxDate.HasValue)
             query = query.Where(s => s.SaleDate <= maxDate.Value);
 
+        if (!string.IsNullOrWhiteSpace(customerName))
+        {
+            var pattern = ToLikePattern(customerName);
+            query = query.Where(s => EF.Functions.ILike(s.CustomerName, pattern));
+        }
+
+        if (!string.IsNullOrWhiteSpace(branchName))
+        {
+            var pattern = ToLikePattern(branchName);
+            query = query.Where(s => EF.Functions.ILike(s.BranchName, pattern));
+        }
+
         query = ApplyOrdering(query, order);
 
         var totalCount = await query.CountAsync(cancellationToken);
@@ -91,6 +105,14 @@ public class SaleRepository : ISaleRepository
             .ToListAsync(cancellationToken);
 
         return (items, totalCount);
+    }
+
+    private static string ToLikePattern(string value)
+    {
+        var pattern = value;
+        if (pattern.StartsWith('*')) pattern = "%" + pattern[1..];
+        if (pattern.EndsWith('*')) pattern = pattern[..^1] + "%";
+        return pattern;
     }
 
     private static IQueryable<Sale> ApplyOrdering(IQueryable<Sale> query, string? order)

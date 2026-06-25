@@ -33,7 +33,7 @@ public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, SaleResult>
         if (sale.Status == Domain.Enums.SaleStatus.Cancelled)
             throw new InvalidOperationException("Cannot update a cancelled sale.");
 
-        sale.SaleDate = command.SaleDate;
+        sale.SaleDate = DateTime.SpecifyKind(command.SaleDate, DateTimeKind.Utc);
         sale.CustomerName = command.CustomerName;
         sale.BranchName = command.BranchName;
         sale.UpdatedAt = DateTime.UtcNow;

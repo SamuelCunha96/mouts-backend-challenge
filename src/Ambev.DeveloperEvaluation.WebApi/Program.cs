@@ -14,7 +14,7 @@ namespace Ambev.DeveloperEvaluation.WebApi;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         try
         {
@@ -69,6 +69,12 @@ public class Program
             app.UseBasicHealthChecks();
 
             app.MapControllers();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<DefaultContext>();
+                await db.Database.MigrateAsync();
+            }
 
             app.Run();
         }

@@ -35,7 +35,7 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, SaleResult>
         var sale = new Sale
         {
             SaleNumber = command.SaleNumber,
-            SaleDate = command.SaleDate,
+            SaleDate = DateTime.SpecifyKind(command.SaleDate, DateTimeKind.Utc),
             CustomerId = command.CustomerId,
             CustomerName = command.CustomerName,
             BranchId = command.BranchId,
